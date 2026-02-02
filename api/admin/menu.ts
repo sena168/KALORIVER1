@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getMenuResponse } from "../_lib/menu";
-import { requireAdmin } from "../_lib/auth";
+import { getMenuResponse } from "../_lib/menu.js";
+import { requireAdmin } from "../_lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {

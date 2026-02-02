@@ -263,7 +263,7 @@ const AdminDashboard: React.FC = () => {
             alt="Loading"
             className="w-20 h-20 mx-auto rounded-xl animate-pulse mb-4"
           />
-          <p className="text-muted-foreground text-tv-body">Memuat...</p>
+          <p className="text-muted-foreground text-tv-body">Memuat... (Admin Auth)</p>
         </div>
       </div>
     );
@@ -282,7 +282,7 @@ const AdminDashboard: React.FC = () => {
             alt="Loading"
             className="w-20 h-20 mx-auto rounded-xl animate-pulse mb-4"
           />
-          <p className="text-muted-foreground text-tv-body">Memuat...</p>
+          <p className="text-muted-foreground text-tv-body">Memuat... (Admin Data)</p>
         </div>
       </div>
     );

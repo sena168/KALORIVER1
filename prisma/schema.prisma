@@ -12,10 +12,10 @@ model Category {
   id        String      @id @default(cuid())
   slug      String      @unique
   label     String
-  items     MenuItem[]
-  orders    MenuOrder[]
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+  items     MenuItem[]
+  orders    MenuOrder[]
 }
 
 model MenuItem {
@@ -25,10 +25,10 @@ model MenuItem {
   imagePath  String
   hidden     Boolean     @default(false)
   categoryId String
-  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  orders     MenuOrder[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  orders     MenuOrder[]
 }
 
 model MenuOrder {

@@ -41,6 +41,10 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
     queryFn: () => fetchMenu(includeHidden),
   });
 
+  if (query.error) {
+    console.error("Menu query error:", query.error);
+  }
+
   const createMutation = useMutation({
     mutationFn: async (payload: {
       name: string;

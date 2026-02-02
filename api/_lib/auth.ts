@@ -1,6 +1,6 @@
 import { initializeApp, cert, getApps } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 const getFirebaseApp = () => {
   if (getApps().length) return getApps()[0];

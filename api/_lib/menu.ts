@@ -1,4 +1,4 @@
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 export const getMenuResponse = async (options?: { includeHidden?: boolean }) => {
   const categories = await prisma.category.findMany({

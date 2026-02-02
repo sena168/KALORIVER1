@@ -22,19 +22,46 @@ export const useAuth = (): UseAuthReturn => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser?.email && !ALLOWED_EMAILS.has(currentUser.email)) {
-        await signOut(auth);
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      setUser(currentUser);
+    let resolved = false;
+    if (auth.currentUser) {
+      setUser(auth.currentUser);
       setLoading(false);
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      if (!resolved) {
+        console.warn("Auth timeout: falling back to guest.");
+        setLoading(false);
+      }
+    }, 4000);
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        if (currentUser?.email && !ALLOWED_EMAILS.has(currentUser.email)) {
+          try {
+            await signOut(auth);
+          } catch (error) {
+            console.warn("Sign out failed:", error);
+          }
+          setUser(null);
+          return;
+        }
+
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Auth state error:", error);
+        setUser(null);
+      } finally {
+        resolved = true;
+        clearTimeout(timeoutId);
+        setLoading(false);
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
