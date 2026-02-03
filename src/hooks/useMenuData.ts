@@ -113,9 +113,13 @@ export const useMenuData = (options?: { includeHidden?: boolean; enabled?: boole
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const headers = await getAuthHeaders();
-      const res = await fetch(`/api/admin/menu/items/${id}`, {
+      const res = await fetch("/api/admin/menu/items", {
         method: "DELETE",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          ...headers,
+        },
+        body: JSON.stringify({ id }),
       });
       if (!res.ok) throw await createHttpError(res, "Failed to delete item");
       return true;

@@ -3,7 +3,7 @@ import { prisma } from "../../_lib/prisma.js";
 import { requireAdmin } from "../../_lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST" && req.method !== "PATCH") {
+  if (req.method !== "POST" && req.method !== "PATCH" && req.method !== "DELETE") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
@@ -50,6 +50,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hidden: updated.hidden,
         },
       });
+      return;
+    }
+
+    if (req.method === "DELETE") {
+      const { id } = body;
+      if (!id || typeof id !== "string") {
+        res.status(400).json({ error: "Missing item id" });
+        return;
+      }
+
+      await prisma.menuItem.delete({ where: { id } });
+      res.status(204).end();
       return;
     }
 
