@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
@@ -9,6 +10,7 @@ import { MenuItemWithMeta, useMenuData } from "@/hooks/useMenuData";
 
 const MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
 const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg"]);
+const TIMEOUT_NOTICE_MS = 15000;
 
 type AdminTab = "overview" | "edit" | "tools";
 
@@ -131,7 +133,7 @@ const AdminDashboard: React.FC = () => {
   const startTimeoutNotice = () =>
     window.setTimeout(() => {
       toast.error("Koneksi time out, silahkan coba refresh. Jika perubahan belum muncul, coba lagi.");
-    }, 12000);
+    }, TIMEOUT_NOTICE_MS);
 
   const handleImageChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const file = event.target.files?.[0];
@@ -421,9 +423,19 @@ const AdminDashboard: React.FC = () => {
                     : "bg-secondary text-secondary-foreground hover:bg-secondary/80",
                 )}
               >
-                {tab === "overview" ? "Overview" : tab === "edit" ? "Edit" : "Tools"}
+                {tab === "overview" ? "Ringkasan" : tab === "edit" ? "Edit" : "Alat"}
               </button>
             ))}
+            <Link
+              to="/"
+              className={cn(
+                "flex-1 py-3 md:py-4 px-4 md:px-6 rounded-lg text-tv-body font-medium transition-all duration-200 touch-target text-center",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
+                "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+              )}
+            >
+              Kalkulator
+            </Link>
           </div>
         </div>
       </div>
@@ -592,7 +604,7 @@ const AdminDashboard: React.FC = () => {
 
         {activeTab === "tools" && (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-tv-body text-muted-foreground">Tools akan ditambahkan nanti.</p>
+            <p className="text-tv-body text-muted-foreground">Alat akan ditambahkan nanti.</p>
           </div>
         )}
       </main>
