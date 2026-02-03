@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
@@ -25,7 +26,9 @@ const AdminDashboard: React.FC = () => {
   const [editHidden, setEditHidden] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [imageDataUrl, setImageDataUrl] = useState<string | undefined>(undefined);
-  const [imageError, setImageError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [busyAction, setBusyAction] = useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
   const [draftOrders, setDraftOrders] = useState<Record<string, string[]>>({});
@@ -101,7 +104,7 @@ const AdminDashboard: React.FC = () => {
     setEditHidden(Boolean(item.hidden));
     setImagePreview(item.imagePath);
     setImageDataUrl(item.imagePath.startsWith("data:") ? item.imagePath : undefined);
-    setImageError(null);
+    setFormError(null);
   };
 
   const openAdd = () => {
@@ -112,26 +115,32 @@ const AdminDashboard: React.FC = () => {
     setEditHidden(false);
     setImagePreview("");
     setImageDataUrl(undefined);
-    setImageError(null);
+    setFormError(null);
   };
 
   const closeEdit = () => {
     setEditingItem(null);
     setIsAddMode(false);
-    setImageError(null);
+    setFormError(null);
+    setIsSaving(false);
   };
+
+  const startTimeoutNotice = () =>
+    window.setTimeout(() => {
+      toast.error("Koneksi time out, silahkan coba refresh. Jika perubahan belum muncul, coba lagi.");
+    }, 12000);
 
   const handleImageChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-      setImageError("Format gambar harus PNG atau JPG.");
+      setFormError("Format gambar harus PNG atau JPG.");
       return;
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
-      setImageError("Ukuran gambar maksimal 1MB.");
+      setFormError("Ukuran gambar maksimal 1MB.");
       return;
     }
 
@@ -140,56 +149,106 @@ const AdminDashboard: React.FC = () => {
       const result = String(reader.result || "");
       setImagePreview(result);
       setImageDataUrl(result);
-      setImageError(null);
+      setFormError(null);
     };
     reader.readAsDataURL(file);
   };
 
+  const handleCaloriesChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const raw = event.target.value;
+    if (raw === "" || /^\d+$/.test(raw)) {
+      setEditCalories(raw);
+      setFormError(null);
+      return;
+    }
+    setFormError("Kalori harus angka.");
+  };
+
   const handleSave = async () => {
+    if (isSaving || busyAction) return;
+    setIsSaving(true);
+    setBusyAction(isAddMode ? "Menambahkan menu..." : "Menyimpan perubahan...");
+    const timeoutId = startTimeoutNotice();
+
     if (isAddMode) {
       const trimmedName = editName.trim();
-      const calories = Number(editCalories);
+      const caloriesText = editCalories.trim();
+      const calories = Number(caloriesText);
 
       if (!trimmedName) {
-        setImageError("Nama wajib diisi.");
+        setFormError("Nama wajib diisi.");
+        clearTimeout(timeoutId);
+        setBusyAction(null);
+        setIsSaving(false);
         return;
       }
 
-      if (Number.isNaN(calories) || calories < 0) {
-        setImageError("Kalori harus angka 0 atau lebih.");
+      if (!/^\d+$/.test(caloriesText) || Number.isNaN(calories) || calories < 0) {
+        setFormError("Kalori harus angka 0 atau lebih.");
+        clearTimeout(timeoutId);
+        setBusyAction(null);
+        setIsSaving(false);
         return;
       }
 
       if (!imageDataUrl) {
-        setImageError("Gambar wajib diunggah.");
+        setFormError("Gambar wajib diunggah.");
+        clearTimeout(timeoutId);
+        setBusyAction(null);
+        setIsSaving(false);
         return;
       }
 
       const categoryId = activeCategory;
-      const created = await addItem({
-        name: trimmedName,
-        calories,
-        imagePath: imageDataUrl,
-        hidden: editHidden,
-        categoryId,
-      });
+      try {
+        const created = await addItem({
+          name: trimmedName,
+          calories,
+          imagePath: imageDataUrl,
+          hidden: editHidden,
+          categoryId,
+        });
 
-      const currentIds = activeItems.map((item) => item.id);
-      const selectedIndex = selectedItemId ? currentIds.indexOf(selectedItemId) : -1;
-      const insertIndex = selectedIndex >= 0 ? selectedIndex + 1 : 0;
-      const nextOrder = [...currentIds];
-      nextOrder.splice(insertIndex, 0, created.id);
-      await setOrder({ categoryId, order: nextOrder });
+        const currentIds = activeItems.map((item) => item.id);
+        const selectedIndex = selectedItemId ? currentIds.indexOf(selectedItemId) : -1;
+        const insertIndex = selectedIndex >= 0 ? selectedIndex + 1 : 0;
+        const nextOrder = [...currentIds];
+        nextOrder.splice(insertIndex, 0, created.id);
+        await setOrder({ categoryId, order: nextOrder });
 
-      setSelectedItemId(created.id);
-      closeEdit();
+        setSelectedItemId(created.id);
+        toast.success("Menu berhasil ditambahkan.");
+        closeEdit();
+      } catch (error) {
+        const err = error as Error & { status?: number };
+        let message = "Gagal menambah menu.";
+        if (err.status === 400) message = "Data tidak valid.";
+        else if (err.status === 401 || err.status === 403) message = "Akses admin tidak diizinkan.";
+        else if (err.status === 409) message = "Menu sudah ada.";
+        else if (err.message?.toLowerCase().includes("failed to fetch")) message = "Tidak dapat terhubung ke server.";
+        else if (err.message) message = err.message;
+        toast.error(message);
+      } finally {
+        clearTimeout(timeoutId);
+        setBusyAction(null);
+        setIsSaving(false);
+      }
       return;
     }
 
-    if (!editingItem) return;
-    const calories = Number(editCalories);
-    if (Number.isNaN(calories) || calories < 0) {
-      setImageError("Kalori harus angka 0 atau lebih.");
+    if (!editingItem) {
+      clearTimeout(timeoutId);
+      setBusyAction(null);
+      setIsSaving(false);
+      return;
+    }
+    const caloriesText = editCalories.trim();
+    const calories = Number(caloriesText);
+    if (!/^\d+$/.test(caloriesText) || Number.isNaN(calories) || calories < 0) {
+      setFormError("Kalori harus angka 0 atau lebih.");
+      clearTimeout(timeoutId);
+      setBusyAction(null);
+      setIsSaving(false);
       return;
     }
 
@@ -208,9 +267,23 @@ const AdminDashboard: React.FC = () => {
       patch.imagePath = imageDataUrl;
     }
 
-    await updateItem({ id: editingItem.id, patch });
-
-    closeEdit();
+    try {
+      await updateItem({ id: editingItem.id, patch });
+      toast.success("Perubahan disimpan.");
+      closeEdit();
+    } catch (error) {
+      const err = error as Error & { status?: number };
+      let message = "Gagal menyimpan perubahan.";
+      if (err.status === 400) message = "Data tidak valid.";
+      else if (err.status === 401 || err.status === 403) message = "Akses admin tidak diizinkan.";
+      else if (err.message?.toLowerCase().includes("failed to fetch")) message = "Tidak dapat terhubung ke server.";
+      else if (err.message) message = err.message;
+      toast.error(message);
+      setIsSaving(false);
+    } finally {
+      clearTimeout(timeoutId);
+      setBusyAction(null);
+    }
   };
 
   const handleDragStart = (itemId: string) => {
@@ -236,22 +309,55 @@ const AdminDashboard: React.FC = () => {
   };
 
   const handleSaveOrder = async () => {
+    if (busyAction) return;
     const draft = draftOrders[activeCategory];
     if (!draft) return;
-    await setOrder({ categoryId: activeCategory, order: draft });
-    setDraftOrders((prev) => {
-      const next = { ...prev };
-      delete next[activeCategory];
-      return next;
-    });
+    setBusyAction("Menyimpan urutan...");
+    const timeoutId = startTimeoutNotice();
+    try {
+      await setOrder({ categoryId: activeCategory, order: draft });
+      setDraftOrders((prev) => {
+        const next = { ...prev };
+        delete next[activeCategory];
+        return next;
+      });
+      toast.success("Urutan berhasil disimpan.");
+    } catch (error) {
+      const err = error as Error & { status?: number };
+      let message = "Gagal menyimpan urutan.";
+      if (err.status === 400) message = "Data tidak valid.";
+      else if (err.status === 401 || err.status === 403) message = "Akses admin tidak diizinkan.";
+      else if (err.message?.toLowerCase().includes("failed to fetch")) message = "Tidak dapat terhubung ke server.";
+      else if (err.message) message = err.message;
+      toast.error(message);
+    } finally {
+      clearTimeout(timeoutId);
+      setBusyAction(null);
+    }
   };
 
   const handleDelete = async () => {
+    if (busyAction) return;
     if (!editingItem) return;
     const confirmed = window.confirm("Hapus menu ini?");
     if (!confirmed) return;
-    await deleteItem(editingItem.id);
-    closeEdit();
+    setBusyAction("Menghapus menu...");
+    const timeoutId = startTimeoutNotice();
+    try {
+      await deleteItem(editingItem.id);
+      toast.success("Menu berhasil dihapus.");
+      closeEdit();
+    } catch (error) {
+      const err = error as Error & { status?: number };
+      let message = "Gagal menghapus menu.";
+      if (err.status === 401 || err.status === 403) message = "Akses admin tidak diizinkan.";
+      else if (err.message?.toLowerCase().includes("failed to fetch")) message = "Tidak dapat terhubung ke server.";
+      else if (err.message) message = err.message;
+      toast.error(message);
+    } finally {
+      clearTimeout(timeoutId);
+      setBusyAction(null);
+    }
   };
 
   if (loading) {
@@ -468,6 +574,7 @@ const AdminDashboard: React.FC = () => {
                   openAdd();
                 }
               }}
+              disabled={Boolean(busyAction)}
               className="fixed bottom-6 right-6 z-50 touch-target text-tv-body font-medium px-6 md:px-8 shadow-lg"
             >
               {isOrderDirty ? "Atur" : "Tambahkan"}
@@ -513,7 +620,9 @@ const AdminDashboard: React.FC = () => {
                   type="number"
                   min={0}
                   value={editCalories}
-                  onChange={(event) => setEditCalories(event.target.value)}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  onChange={handleCaloriesChange}
                   className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
                 />
               </label>
@@ -547,20 +656,31 @@ const AdminDashboard: React.FC = () => {
                 </Button>
               </div>
 
-              {imageError && <p className="text-sm text-destructive">{imageError}</p>}
+              {formError && <p className="text-sm text-destructive">{formError}</p>}
             </div>
 
             <div className="mt-6 flex justify-between gap-3">
               {!isAddMode && (
-                <Button variant="destructive" onClick={handleDelete}>
+                <Button variant="destructive" onClick={handleDelete} disabled={Boolean(busyAction)}>
                   Hapus
                 </Button>
               )}
               <div className="flex gap-3">
                 <Button variant="secondary" onClick={closeEdit}>Batal</Button>
-                <Button onClick={handleSave}>Simpan</Button>
+                <Button onClick={handleSave} disabled={isSaving || Boolean(busyAction)}>
+                  {isSaving ? "Menyimpan..." : "Simpan"}
+                </Button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {busyAction && (
+        <div className="fixed inset-0 z-[80] bg-black/40 flex items-center justify-center">
+          <div className="bg-card border border-border rounded-xl px-6 py-4 shadow-xl flex items-center gap-3">
+            <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <span className="text-tv-body text-foreground">{busyAction}</span>
           </div>
         </div>
       )}

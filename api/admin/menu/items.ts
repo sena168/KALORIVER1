@@ -44,6 +44,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    const existing = await prisma.menuItem.findFirst({
+      where: {
+        categoryId: category.id,
+        name,
+        calories: parsedCalories,
+        imagePath,
+      },
+    });
+
+    if (existing) {
+      res.status(409).json({ error: "Duplicate item" });
+      return;
+    }
+
     const created = await prisma.menuItem.create({
       data: {
         name,

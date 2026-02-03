@@ -32,6 +32,21 @@ const fetchMenu = async (includeHidden: boolean) => {
   return data.categories as MenuCategoryWithMeta[];
 };
 
+const createHttpError = async (res: Response, fallback: string) => {
+  let message = fallback;
+  try {
+    const data = await res.json();
+    if (data?.error) {
+      message = data.error;
+    }
+  } catch {
+    // ignore JSON parsing errors
+  }
+  const error = new Error(message);
+  (error as { status?: number }).status = res.status;
+  return error;
+};
+
 export const useMenuData = (options?: { includeHidden?: boolean }) => {
   const includeHidden = options?.includeHidden ?? false;
   const queryClient = useQueryClient();
@@ -44,6 +59,8 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
   if (query.error) {
     console.error("Menu query error:", query.error);
   }
+
+  const invalidateMenu = () => queryClient.invalidateQueries({ queryKey: ["menu"], exact: false });
 
   const createMutation = useMutation({
     mutationFn: async (payload: {
@@ -62,11 +79,11 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
         },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to create item");
+      if (!res.ok) throw await createHttpError(res, "Failed to create item");
       const data = await res.json();
       return data.item as MenuItemWithMeta;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu"] }),
+    onSuccess: invalidateMenu,
   });
 
   const updateMutation = useMutation({
@@ -83,11 +100,11 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
         },
         body: JSON.stringify(payload.patch),
       });
-      if (!res.ok) throw new Error("Failed to update item");
+      if (!res.ok) throw await createHttpError(res, "Failed to update item");
       const data = await res.json();
       return data.item as MenuItemWithMeta;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu"] }),
+    onSuccess: invalidateMenu,
   });
 
   const deleteMutation = useMutation({
@@ -97,10 +114,10 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
         method: "DELETE",
         headers,
       });
-      if (!res.ok) throw new Error("Failed to delete item");
+      if (!res.ok) throw await createHttpError(res, "Failed to delete item");
       return true;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu"] }),
+    onSuccess: invalidateMenu,
   });
 
   const orderMutation = useMutation({
@@ -114,10 +131,10 @@ export const useMenuData = (options?: { includeHidden?: boolean }) => {
         },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("Failed to update order");
+      if (!res.ok) throw await createHttpError(res, "Failed to update order");
       return true;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["menu"] }),
+    onSuccess: invalidateMenu,
   });
 
   return {
