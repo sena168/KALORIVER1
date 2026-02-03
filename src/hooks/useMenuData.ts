@@ -95,13 +95,13 @@ export const useMenuData = (options?: { includeHidden?: boolean; enabled?: boole
       patch: { name?: string; calories?: number; imagePath?: string; hidden?: boolean };
     }) => {
       const headers = await getAuthHeaders();
-      const res = await fetch(`/api/admin/menu/items/${payload.id}`, {
+      const res = await fetch("/api/admin/menu/items", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           ...headers,
         },
-        body: JSON.stringify(payload.patch),
+        body: JSON.stringify({ id: payload.id, ...payload.patch }),
       });
       if (!res.ok) throw await createHttpError(res, "Failed to update item");
       const data = await res.json();

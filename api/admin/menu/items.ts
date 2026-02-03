@@ -3,7 +3,7 @@ import { prisma } from "../../_lib/prisma.js";
 import { requireAdmin } from "../../_lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") {
+  if (req.method !== "POST" && req.method !== "PATCH") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
@@ -16,6 +16,43 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body ?? {};
+
+    if (req.method === "PATCH") {
+      const { id, name, calories, imagePath, hidden } = body;
+      if (!id || typeof id !== "string") {
+        res.status(400).json({ error: "Missing item id" });
+        return;
+      }
+
+      const data: { name?: string; calories?: number; imagePath?: string; hidden?: boolean } = {};
+      if (typeof name === "string" && name.trim()) data.name = name.trim();
+      const parsedCalories = Number(calories);
+      if (Number.isFinite(parsedCalories) && parsedCalories >= 0) data.calories = parsedCalories;
+      if (typeof imagePath === "string" && imagePath.trim()) data.imagePath = imagePath.trim();
+      if (typeof hidden === "boolean") data.hidden = hidden;
+
+      if (Object.keys(data).length === 0) {
+        res.status(400).json({ error: "No changes provided" });
+        return;
+      }
+
+      const updated = await prisma.menuItem.update({
+        where: { id },
+        data,
+      });
+
+      res.status(200).json({
+        item: {
+          id: updated.id,
+          name: updated.name,
+          calories: updated.calories,
+          imagePath: updated.imagePath,
+          hidden: updated.hidden,
+        },
+      });
+      return;
+    }
+
     const { name, calories, imagePath, hidden, categoryId } = body;
     if (!name || typeof name !== "string") {
       res.status(400).json({ error: "Invalid name" });
@@ -80,6 +117,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to create menu item" });
+    res.status(500).json({ error: "Failed to save menu item" });
   }
 }
