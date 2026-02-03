@@ -29,9 +29,15 @@ export const verifyIdToken = async (authHeader?: string) => {
 };
 
 export const requireAdmin = async (authHeader?: string) => {
-  const decoded = await verifyIdToken(authHeader);
+  let decoded;
+  try {
+    decoded = await verifyIdToken(authHeader);
+  } catch (error) {
+    console.error("Token verify failed:", error);
+    return { ok: false, status: 401, message: "Invalid token" };
+  }
   if (!decoded?.email) {
-    return { ok: false, status: 401, message: "Unauthorized" };
+    return { ok: false, status: 401, message: "Missing token" };
   }
 
   const admin = await prisma.adminUser.findFirst({
