@@ -3,7 +3,7 @@ import type { MenuItemWithMeta } from '@/hooks/useMenuData';
 import { useCalories } from '@/contexts/CalorieContext';
 import QuantityControl from './QuantityControl';
 import { cn } from '@/lib/utils';
-import { getLocalMenuFallback } from '@/lib/imageFallback';
+import { getNextImageFallback } from '@/lib/imageFallback';
 
 interface FoodCardProps {
   item: MenuItemWithMeta;
@@ -18,17 +18,14 @@ const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
 
   const handleImageError: React.ReactEventHandler<HTMLImageElement> = (event) => {
     const target = event.currentTarget;
-    if (target.dataset.fallback === "1") {
+    const stage = Number(target.dataset.fallback ?? "0");
+    const next = getNextImageFallback(target.src, stage);
+    if (!next) {
       setImageError(true);
       return;
     }
-    const fallback = getLocalMenuFallback(target.src);
-    if (!fallback) {
-      setImageError(true);
-      return;
-    }
-    target.dataset.fallback = "1";
-    target.src = fallback;
+    target.dataset.fallback = String(stage + 1);
+    target.src = next;
   };
 
   return (

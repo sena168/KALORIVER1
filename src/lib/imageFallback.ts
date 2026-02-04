@@ -1,4 +1,6 @@
-export const getLocalMenuFallback = (src: string) => {
+const PLACEHOLDER_IMAGE = "/noimage1.jpg";
+
+const getLocalMenuFallback = (src: string) => {
   if (!src) return undefined;
   if (src.startsWith("/menu/")) return undefined;
   try {
@@ -13,3 +15,15 @@ export const getLocalMenuFallback = (src: string) => {
     return undefined;
   }
 };
+
+export const getNextImageFallback = (src: string, stage: number) => {
+  if (stage === 0) {
+    return getLocalMenuFallback(src) ?? PLACEHOLDER_IMAGE;
+  }
+  if (stage === 1) {
+    return PLACEHOLDER_IMAGE;
+  }
+  return undefined;
+};
+
+export { PLACEHOLDER_IMAGE, getLocalMenuFallback };

@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
-import { getLocalMenuFallback } from "@/lib/imageFallback";
+import { getNextImageFallback } from "@/lib/imageFallback";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
 import { MenuItemWithMeta, useMenuData } from "@/hooks/useMenuData";
@@ -552,11 +552,11 @@ const AdminDashboard: React.FC = () => {
                             loading="lazy"
                             onError={(event) => {
                               const target = event.currentTarget;
-                              if (target.dataset.fallback === "1") return;
-                              const fallback = getLocalMenuFallback(target.src);
-                              if (!fallback) return;
-                              target.dataset.fallback = "1";
-                              target.src = fallback;
+                              const stage = Number(target.dataset.fallback ?? "0");
+                              const next = getNextImageFallback(target.src, stage);
+                              if (!next) return;
+                              target.dataset.fallback = String(stage + 1);
+                              target.src = next;
                             }}
                           />
                         </div>
@@ -667,11 +667,11 @@ const AdminDashboard: React.FC = () => {
                       className="w-full h-full object-cover"
                       onError={(event) => {
                         const target = event.currentTarget;
-                        if (target.dataset.fallback === "1") return;
-                        const fallback = getLocalMenuFallback(target.src);
-                        if (!fallback) return;
-                        target.dataset.fallback = "1";
-                        target.src = fallback;
+                        const stage = Number(target.dataset.fallback ?? "0");
+                        const next = getNextImageFallback(target.src, stage);
+                        if (!next) return;
+                        target.dataset.fallback = String(stage + 1);
+                        target.src = next;
                       }}
                     />
                   ) : (
