@@ -8,12 +8,7 @@ const Landing: React.FC = () => {
   const handleGoogleLogin = async () => {
     const { error } = await signInWithGoogle();
     if (!error) {
-      window.location.assign("/admin");
-      return;
-    }
-
-    if (error.message === "only-admin") {
-      window.alert("Akun ini tidak memiliki akses admin.");
+      window.location.assign("/");
       return;
     }
 
@@ -69,7 +64,7 @@ const Landing: React.FC = () => {
           onClick={handleGoogleLogin}
           className="w-full touch-target text-tv-small font-medium px-6 md:px-10 py-4 md:py-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
         >
-          Login Admin
+          Login Dengan Google
         </Button>
       </div>
     </div>

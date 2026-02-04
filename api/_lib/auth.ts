@@ -60,3 +60,30 @@ export const requireAdmin = async (authHeader?: string) => {
 
   return { ok: true, admin, decoded };
 };
+
+export const requireUser = async (authHeader?: string) => {
+  let decoded;
+  try {
+    decoded = await verifyIdToken(authHeader);
+  } catch (error) {
+    console.error("Token verify failed:", error);
+    return { ok: false, status: 401, message: "Invalid token" };
+  }
+
+  if (!decoded?.uid) {
+    return { ok: false, status: 401, message: "Missing token" };
+  }
+
+  return { ok: true, decoded };
+};
+
+export const isAdminUser = async (uid?: string, email?: string | null) => {
+  if (!uid && !email) return false;
+  const admin = await prisma.adminUser.findFirst({
+    where: {
+      isActive: true,
+      OR: [{ uid: uid ?? "" }, { email: email ?? "" }],
+    },
+  });
+  return Boolean(admin);
+};

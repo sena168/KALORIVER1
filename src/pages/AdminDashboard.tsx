@@ -8,6 +8,7 @@ import { getNextImageFallback } from "@/lib/imageFallback";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
 import { MenuItemWithMeta, useMenuData } from "@/hooks/useMenuData";
+import { useProfile } from "@/hooks/useProfile";
 
 const MAX_IMAGE_SIZE = 1024 * 1024; // 1MB
 const ALLOWED_IMAGE_TYPES = new Set(["image/png", "image/jpeg", "image/jpg"]);
@@ -17,9 +18,10 @@ type AdminTab = "overview" | "edit" | "tools";
 
 const AdminDashboard: React.FC = () => {
   const { user, loading } = useAuth();
+  const { isAdmin, isLoading: profileLoading } = useProfile(Boolean(user));
   const { categories, isLoading, updateItem, deleteItem, setOrder, addItem } = useMenuData({
     includeHidden: true,
-    enabled: !loading && Boolean(user),
+    enabled: !loading && Boolean(user) && isAdmin,
   });
 
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
@@ -371,7 +373,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -388,6 +390,22 @@ const AdminDashboard: React.FC = () => {
 
   if (!user) {
     return <Landing />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="bg-card border border-border rounded-2xl p-8 max-w-md w-full text-center">
+          <h2 className="text-tv-subtitle text-foreground mb-2">Akses admin tidak diizinkan</h2>
+          <p className="text-tv-body text-muted-foreground mb-6">
+            Akun ini bukan admin. Silakan kembali ke kalkulator.
+          </p>
+          <Button onClick={() => window.location.assign("/")} className="w-full">
+            Kembali ke Kalkulator
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (isLoading) {

@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useProfile } from '@/hooks/useProfile';
 
 const Header: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, signInWithGoogle } = useAuth();
   const location = useLocation();
-  const showAdminButton = Boolean(user) && location.pathname !== "/admin";
-  const showCalculatorButton = Boolean(user) && location.pathname === "/admin";
+  const { isAdmin } = useProfile(Boolean(user));
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+    try {
+      setIsGuest(localStorage.getItem("guest-access") === "true");
+    } catch {
+      setIsGuest(false);
+    }
+  }, []);
+
+  const isAdminPage = location.pathname === "/admin";
+  const isCalculatorPage = location.pathname === "/";
+  const showAdminButton = Boolean(user) && isAdmin && !isAdminPage;
+  const showCalculatorButton = Boolean(user) && isAdmin && isAdminPage;
+  const showBmiButton = isCalculatorPage || isAdminPage;
 
   const handleSignOut = async () => {
     const confirmed = window.confirm("Keluar dari akun?");
@@ -23,6 +38,20 @@ const Header: React.FC = () => {
       }
       window.location.assign("/");
     }
+  };
+
+  const handleBmiClick: React.MouseEventHandler<HTMLButtonElement> = async (event) => {
+    if (user) return;
+    if (!isGuest) return;
+    event.preventDefault();
+    const confirmed = window.confirm("BMI Index memerlukan login. Lanjutkan login?");
+    if (!confirmed) return;
+    const { error } = await signInWithGoogle();
+    if (!error) {
+      window.location.assign("/health-metrics");
+      return;
+    }
+    window.alert("Gagal masuk dengan Google. Coba lagi.");
   };
 
   return (
@@ -51,6 +80,17 @@ const Header: React.FC = () => {
             <Button asChild variant="secondary" className="touch-target">
               <Link to="/">Kalkulator</Link>
             </Button>
+          )}
+          {showBmiButton && (user || isGuest) && (
+            user ? (
+              <Button asChild variant="secondary" className="touch-target">
+                <Link to="/health-metrics">BMI Index</Link>
+              </Button>
+            ) : (
+              <Button variant="secondary" className="touch-target" onClick={handleBmiClick}>
+                BMI Index
+              </Button>
+            )
           )}
           <Button
             variant="ghost"

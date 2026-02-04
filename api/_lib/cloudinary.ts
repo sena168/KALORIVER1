@@ -21,17 +21,19 @@ const ensureConfigured = () => {
   configured = true;
 };
 
-export const uploadMenuImageIfNeeded = async (imagePath: string) => {
+export const uploadImageIfNeeded = async (imagePath: string, folder: string) => {
   if (!imagePath) return imagePath;
   if (!imagePath.startsWith("data:")) return imagePath;
 
   ensureConfigured();
   const result = await cloudinary.uploader.upload(imagePath, {
-    folder: "menu",
+    folder,
     resource_type: "image",
   });
   return result.secure_url || result.url;
 };
+
+export const uploadMenuImageIfNeeded = async (imagePath: string) => uploadImageIfNeeded(imagePath, "menu");
 
 export const deleteCloudinaryAssetIfNeeded = async (imagePath: string) => {
   if (!imagePath || !imagePath.includes("res.cloudinary.com")) return;

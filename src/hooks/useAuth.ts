@@ -9,14 +9,6 @@ export interface UseAuthReturn {
   signOut: () => Promise<void>;
 }
 
-const ALLOWED_EMAILS = new Set([
-  "fransiscaroberta@gmail.com",
-  "ashmeeishwar@gmail.com",
-  "suhuac3ng@gmail.com",
-  "senaprasena@gmail.com",
-  "smpsantoyusupjalanjawa@gmail.com",
-]);
-
 export const useAuth = (): UseAuthReturn => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,16 +29,6 @@ export const useAuth = (): UseAuthReturn => {
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
-        if (currentUser?.email && !ALLOWED_EMAILS.has(currentUser.email)) {
-          try {
-            await signOut(auth);
-          } catch (error) {
-            console.warn("Sign out failed:", error);
-          }
-          setUser(null);
-          return;
-        }
-
         setUser(currentUser);
       } catch (error) {
         console.error("Auth state error:", error);
@@ -68,11 +50,6 @@ export const useAuth = (): UseAuthReturn => {
     try {
       setLoading(true);
       await signInWithPopup(auth, googleProvider);
-      const email = auth.currentUser?.email || "";
-      if (!ALLOWED_EMAILS.has(email)) {
-        await signOut(auth);
-        return { error: new Error("only-admin") };
-      }
       return { error: null };
     } catch (error) {
       setLoading(false);
