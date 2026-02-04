@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+import { getLocalMenuFallback } from "@/lib/imageFallback";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/Landing";
 import { MenuItemWithMeta, useMenuData } from "@/hooks/useMenuData";
@@ -549,6 +550,14 @@ const AdminDashboard: React.FC = () => {
                             alt={item.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
+                            onError={(event) => {
+                              const target = event.currentTarget;
+                              if (target.dataset.fallback === "1") return;
+                              const fallback = getLocalMenuFallback(target.src);
+                              if (!fallback) return;
+                              target.dataset.fallback = "1";
+                              target.src = fallback;
+                            }}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -652,7 +661,19 @@ const AdminDashboard: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
                   {imagePreview ? (
-                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                      onError={(event) => {
+                        const target = event.currentTarget;
+                        if (target.dataset.fallback === "1") return;
+                        const fallback = getLocalMenuFallback(target.src);
+                        if (!fallback) return;
+                        target.dataset.fallback = "1";
+                        target.src = fallback;
+                      }}
+                    />
                   ) : (
                     <span className="text-xs text-muted-foreground">No Image</span>
                   )}
