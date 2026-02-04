@@ -210,7 +210,7 @@ const HealthMetricsContent: React.FC = () => {
     }));
   }, [age]);
 
-  if ((loading || profileLoading) && !forceReady) {
+  if (loading && !forceReady) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -259,16 +259,29 @@ const HealthMetricsContent: React.FC = () => {
       <main className="pt-24 md:pt-28 lg:pt-32 pb-10">
         <div className="container mx-auto px-4 space-y-6">
           <div className="bg-card border border-border rounded-2xl p-6 shadow-lg">
-            {profileError ? (
-              <div className="mb-4 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                Gagal memuat profil tersimpan. Anda tetap bisa memakai kalkulator.
+            {profileLoading && (
+              <div className="space-y-4">
+                <div className="h-6 w-56 rounded-md bg-muted animate-pulse" />
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <div key={index} className="h-12 rounded-lg bg-muted animate-pulse" />
+                  ))}
+                </div>
+                <div className="h-20 rounded-lg bg-muted animate-pulse" />
               </div>
-            ) : !profile ? (
-              <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-                Harap lengkapi data untuk menggunakan kalkulator.
-              </div>
-            ) : null}
-            <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+            )}
+            {!profileLoading && (
+              <>
+                {profileError ? (
+                  <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+                    Profil tersimpan tidak bisa dimuat. Silakan isi ulang datanya.
+                  </div>
+                ) : !profile ? (
+                  <div className="mb-4 rounded-lg border border-border/60 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+                    Harap lengkapi data untuk menggunakan kalkulator.
+                  </div>
+                ) : null}
+                <div className="flex flex-col lg:flex-row lg:items-start gap-6">
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <label className="block">
                   <span className="text-tv-small text-muted-foreground">Usia</span>
@@ -355,8 +368,9 @@ const HealthMetricsContent: React.FC = () => {
                 >
                   {isSaving ? "Menyimpan..." : "Simpan Profil"}
                 </Button>
-              </div>
-            </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-4 shadow-md">
