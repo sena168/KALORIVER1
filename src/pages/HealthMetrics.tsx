@@ -61,6 +61,12 @@ const HealthMetricsContent: React.FC = () => {
   }, [profile, hasHydrated, setAge, setWeight, setHeight, setGender]);
 
   useEffect(() => {
+    if (!profileLoading && !hasHydrated) {
+      setHasHydrated(true);
+    }
+  }, [profileLoading, hasHydrated]);
+
+  useEffect(() => {
     const timeoutId = window.setTimeout(() => {
       setForceReady(true);
     }, 4000);
