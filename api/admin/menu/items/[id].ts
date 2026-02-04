@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../../_lib/prisma.js";
 import { requireAdmin } from "../../../_lib/auth.js";
-import { uploadMenuImageIfNeeded } from "../../../_lib/cloudinary.js";
+import { deleteCloudinaryAssetIfNeeded, uploadMenuImageIfNeeded } from "../../../_lib/cloudinary.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log("menu items handler", req.method, req.url);
@@ -63,6 +63,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === "DELETE") {
     try {
+      const existing = await prisma.menuItem.findUnique({ where: { id: itemId } });
+      if (existing) {
+        await deleteCloudinaryAssetIfNeeded(existing.imagePath);
+      }
       await prisma.menuItem.delete({ where: { id: itemId } });
       res.status(204).end();
     } catch (error) {

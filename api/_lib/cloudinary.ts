@@ -32,3 +32,27 @@ export const uploadMenuImageIfNeeded = async (imagePath: string) => {
   });
   return result.secure_url || result.url;
 };
+
+export const deleteCloudinaryAssetIfNeeded = async (imagePath: string) => {
+  if (!imagePath || !imagePath.includes("res.cloudinary.com")) return;
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (!cloudName) return;
+
+  // Expected: https://res.cloudinary.com/<cloud>/image/upload/<version>/folder/file.ext
+  const marker = `/res.cloudinary.com/${cloudName}/image/upload/`;
+  const index = imagePath.indexOf(marker);
+  if (index === -1) return;
+
+  const remainder = imagePath.slice(index + marker.length);
+  const withoutVersion = remainder.replace(/^v\d+\//, "");
+  const publicId = withoutVersion.replace(/\.[^/.]+$/, "");
+  if (!publicId) return;
+
+  ensureConfigured();
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+  } catch (error) {
+    console.warn("Cloudinary delete failed:", error);
+  }
+};
