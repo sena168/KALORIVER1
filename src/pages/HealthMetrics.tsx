@@ -282,92 +282,93 @@ const HealthMetricsContent: React.FC = () => {
                   </div>
                 ) : null}
                 <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                <label className="block">
-                  <span className="text-tv-small text-muted-foreground">Usia</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={age}
-                    onChange={(event) => setAge(Number(event.target.value))}
-                    className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-tv-small text-muted-foreground">Berat (kg)</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={weight}
-                    onChange={(event) => setWeight(Number(event.target.value))}
-                    className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-tv-small text-muted-foreground">Tinggi (cm)</span>
-                  <input
-                    type="number"
-                    min={1}
-                    value={height}
-                    onChange={(event) => setHeight(Number(event.target.value))}
-                    className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-tv-small text-muted-foreground">Gender</span>
-                  <div className="mt-2 flex gap-2">
-                    <Button
-                      type="button"
-                      variant={gender === "male" ? "default" : "secondary"}
-                      onClick={() => setGender("male")}
-                      className="flex-1"
-                    >
-                      Male
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={gender === "female" ? "default" : "secondary"}
-                      onClick={() => setGender("female")}
-                      className="flex-1"
-                    >
-                      Female
-                    </Button>
-                  </div>
-                </label>
-              </div>
-
-              <div className="w-full lg:w-64 flex flex-col gap-4">
-                <label className="block">
-                  <span className="text-tv-small text-muted-foreground">Username (opsional)</span>
-                  <input
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
-                  />
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
-                    <img src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-tv-small text-muted-foreground">
-                      Foto (PNG/JPG, max 1MB)
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                    <label className="block">
+                      <span className="text-tv-small text-muted-foreground">Usia</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={age}
+                        onChange={(event) => setAge(Number(event.target.value))}
+                        className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
+                      />
                     </label>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg"
-                      onChange={handlePhotoChange}
-                      className="mt-2 w-full text-sm text-muted-foreground"
-                    />
+                    <label className="block">
+                      <span className="text-tv-small text-muted-foreground">Berat (kg)</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={weight}
+                        onChange={(event) => setWeight(Number(event.target.value))}
+                        className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-tv-small text-muted-foreground">Tinggi (cm)</span>
+                      <input
+                        type="number"
+                        min={1}
+                        value={height}
+                        onChange={(event) => setHeight(Number(event.target.value))}
+                        className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-tv-small text-muted-foreground">Gender</span>
+                      <div className="mt-2 flex gap-2">
+                        <Button
+                          type="button"
+                          variant={gender === "male" ? "default" : "secondary"}
+                          onClick={() => setGender("male")}
+                          className="flex-1"
+                        >
+                          Male
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={gender === "female" ? "default" : "secondary"}
+                          onClick={() => setGender("female")}
+                          className="flex-1"
+                        >
+                          Female
+                        </Button>
+                      </div>
+                    </label>
                   </div>
-                </div>
-                <Button
-                  onClick={handleSaveProfile}
-                  disabled={!isDirty || isSaving}
-                  variant={isDirty ? "default" : "secondary"}
-                >
-                  {isSaving ? "Menyimpan..." : "Simpan Profil"}
-                </Button>
+
+                  <div className="w-full lg:w-64 flex flex-col gap-4">
+                    <label className="block">
+                      <span className="text-tv-small text-muted-foreground">Username (opsional)</span>
+                      <input
+                        value={username}
+                        onChange={(event) => setUsername(event.target.value)}
+                        className="mt-2 w-full rounded-lg border border-input bg-background px-4 py-3 text-foreground"
+                      />
+                    </label>
+                    <div className="flex items-center gap-4">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                        <img src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-tv-small text-muted-foreground">
+                          Foto (PNG/JPG, max 1MB)
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg"
+                          onChange={handlePhotoChange}
+                          className="mt-2 w-full text-sm text-muted-foreground"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleSaveProfile}
+                      disabled={!isDirty || isSaving}
+                      variant={isDirty ? "default" : "secondary"}
+                    >
+                      {isSaving ? "Menyimpan..." : "Simpan Profil"}
+                    </Button>
+                  </div>
                 </div>
               </>
             )}
