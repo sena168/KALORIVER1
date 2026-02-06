@@ -385,8 +385,9 @@ const HealthMetricsContent: React.FC = () => {
             </div>
           )}
 
-          <div className="bg-card border border-border rounded-2xl p-4 shadow-md">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="bg-background border-b border-border rounded-2xl shadow-md">
+            <div className="px-4">
+              <div className="flex gap-2 md:gap-4 py-3 md:py-4 flex-wrap">
               {[
                 { key: "bmi", label: "BMI" },
                 { key: "body-fat", label: "Body Fat %" },
@@ -406,6 +407,7 @@ const HealthMetricsContent: React.FC = () => {
                   {tab.label}
                 </button>
               ))}
+              </div>
             </div>
           </div>
 
