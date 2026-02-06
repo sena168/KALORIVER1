@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -8,7 +8,7 @@ import { useProfile } from '@/hooks/useProfile';
 const Header: React.FC = () => {
   const { user, signOut, signInWithGoogle } = useAuth();
   const location = useLocation();
-  const { isAdmin } = useProfile(Boolean(user));
+  const { profile, isAdmin } = useProfile(Boolean(user));
   const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
@@ -55,6 +55,8 @@ const Header: React.FC = () => {
     window.alert("Gagal masuk dengan Google. Coba lagi.");
   };
 
+  const avatarSrc = profile?.photoUrl || "/noimage1.jpg";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
       <div className="container mx-auto px-4 h-16 md:h-20 lg:h-24 flex items-center justify-between">
@@ -93,15 +95,54 @@ const Header: React.FC = () => {
               </Button>
             )
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            className="touch-target text-muted-foreground hover:text-foreground"
-            title="Keluar"
-          >
-            <LogOut className="h-5 w-5 md:h-6 md:w-6" />
-          </Button>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                type="button"
+                className="h-10 w-10 md:h-11 md:w-11 rounded-full overflow-hidden border border-border bg-muted flex items-center justify-center hover:ring-2 hover:ring-primary/40 transition"
+                title="Profil"
+              >
+                <img
+                  src={avatarSrc}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                  onError={(event) => {
+                    const target = event.currentTarget;
+                    if (target.dataset.fallback === "1") return;
+                    target.dataset.fallback = "1";
+                    target.src = "/noimage1.jpg";
+                  }}
+                />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              align="end"
+              sideOffset={8}
+              className="z-[70] min-w-[180px] rounded-lg border border-border bg-card shadow-lg p-2"
+            >
+              <div className="px-3 py-2 text-xs text-muted-foreground">Theme</div>
+              <DropdownMenu.Item
+                className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
+              >
+                Dark
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
+              >
+                Light
+              </DropdownMenu.Item>
+              <DropdownMenu.Separator className="my-2 h-px bg-border" />
+              <DropdownMenu.Item
+                className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
+                onSelect={(event) => {
+                  event.preventDefault();
+                  handleSignOut();
+                }}
+              >
+                Sign Out
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
         </div>
       </div>
     </header>
