@@ -56,6 +56,20 @@ const Header: React.FC = () => {
   };
 
   const avatarSrc = profile?.photoUrl || "/kaloriico.png";
+  const displayLabel =
+    profile?.username ||
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "";
+  const initials = (() => {
+    const trimmed = displayLabel.trim();
+    if (!trimmed) return "U";
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return trimmed.slice(0, 2).toUpperCase();
+  })();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
@@ -95,7 +109,11 @@ const Header: React.FC = () => {
               </Button>
             )
           )}
-          <DropdownMenu.Root>
+          <div className="flex items-center gap-2">
+            <span className="text-tv-small text-muted-foreground hidden md:inline-block">
+              {initials}
+            </span>
+            <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
                 type="button"
@@ -120,6 +138,9 @@ const Header: React.FC = () => {
               sideOffset={8}
               className="z-[70] min-w-[180px] rounded-lg border border-border bg-card shadow-lg p-2"
             >
+              <div className="px-3 py-2 text-sm text-foreground">
+                {displayLabel || "User"}
+              </div>
               <div className="px-3 py-2 text-xs text-muted-foreground">Theme</div>
               <DropdownMenu.Item
                 className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
@@ -143,6 +164,7 @@ const Header: React.FC = () => {
               </DropdownMenu.Item>
             </DropdownMenu.Content>
           </DropdownMenu.Root>
+          </div>
         </div>
       </div>
     </header>
