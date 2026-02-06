@@ -55,7 +55,7 @@ const Header: React.FC = () => {
     window.alert("Gagal masuk dengan Google. Coba lagi.");
   };
 
-  const avatarSrc = profile?.photoUrl || "/noimage1.jpg";
+  const avatarSrc = profile?.photoUrl || "/kaloriico.png";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
