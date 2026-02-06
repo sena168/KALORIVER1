@@ -154,7 +154,7 @@ const HealthMetricsContent: React.FC = () => {
     return "Obese";
   }, [bmi]);
 
-  const bmiScaleMax = 40;
+  const bmiScaleMax = 45;
   const bmiPercent = useMemo(() => {
     if (!bmi) return 0;
     const clamped = Math.min(Math.max(bmi, 0), bmiScaleMax);
@@ -167,7 +167,8 @@ const HealthMetricsContent: React.FC = () => {
       under: (18.5 / total) * 100,
       normal: ((24.9 - 18.5) / total) * 100,
       over: ((29.9 - 25) / total) * 100,
-      obese: ((total - 30) / total) * 100,
+      obese: ((39.9 - 30) / total) * 100,
+      morbid: ((total - 40) / total) * 100,
     };
   }, []);
 
@@ -446,6 +447,7 @@ const HealthMetricsContent: React.FC = () => {
                   <div className="bg-emerald-500" style={{ width: `${bmiSegment.normal}%` }} />
                   <div className="bg-amber-400" style={{ width: `${bmiSegment.over}%` }} />
                   <div className="bg-orange-500" style={{ width: `${bmiSegment.obese}%` }} />
+                  <div className="bg-red-600" style={{ width: `${bmiSegment.morbid}%` }} />
                 </div>
                 {bmi > 0 && (
                   <div className="absolute -top-6 left-0" style={{ width: `${bmiPercent}%` }}>
@@ -461,7 +463,7 @@ const HealthMetricsContent: React.FC = () => {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-muted-foreground">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-500" />
                   <span>Underweight &lt; 18.5</span>
@@ -476,7 +478,11 @@ const HealthMetricsContent: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-orange-500" />
-                  <span>Obese 30+</span>
+                  <span>Obese 30 - 39.9</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-red-600" />
+                  <span>Morbid &ge; 40</span>
                 </div>
               </div>
               <div>
