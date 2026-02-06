@@ -207,6 +207,25 @@ const HealthMetricsContent: React.FC = () => {
     return "High";
   }, [bodyFat]);
 
+  const bodyFatScaleMax = 40;
+  const bodyFatSegments = useMemo(() => {
+    const total = bodyFatScaleMax;
+    return {
+      low: (18 / total) * 100,
+      normal: ((25 - 18) / total) * 100,
+      high: ((total - 25) / total) * 100,
+    };
+  }, []);
+
+  const bodyFatSegmentWidths = useMemo(
+    () => [
+      { key: "low", label: "Low", color: "bg-blue-500", width: bodyFatSegments.low },
+      { key: "normal", label: "Normal", color: "bg-emerald-500", width: bodyFatSegments.normal },
+      { key: "high", label: "High", color: "bg-orange-500", width: bodyFatSegments.high },
+    ],
+    [bodyFatSegments],
+  );
+
   const bmr = useMemo(() => {
     if (!age || !weight || !height) return 0;
     if (gender === "male") {
@@ -514,6 +533,25 @@ const HealthMetricsContent: React.FC = () => {
                   <p className="text-tv-small text-muted-foreground">Kategori</p>
                   <p className="text-tv-subtitle text-foreground">{bodyFatCategory}</p>
                 </div>
+              </div>
+              <div className="h-4 rounded-full bg-muted overflow-hidden">
+                <div className="flex h-full">
+                  <div className="bg-blue-500" style={{ width: `${bodyFatSegments.low}%` }} />
+                  <div className="bg-emerald-500" style={{ width: `${bodyFatSegments.normal}%` }} />
+                  <div className="bg-orange-500" style={{ width: `${bodyFatSegments.high}%` }} />
+                </div>
+              </div>
+              <div className="flex text-xs text-muted-foreground">
+                {bodyFatSegmentWidths.map((segment) => (
+                  <div
+                    key={segment.key}
+                    className="flex items-center gap-2"
+                    style={{ width: `${segment.width}%` }}
+                  >
+                    <span className={`h-2 w-2 rounded-full ${segment.color}`} />
+                    <span className="truncate">{segment.label}</span>
+                  </div>
+                ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-muted rounded-lg p-4">
