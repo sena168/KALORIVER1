@@ -423,11 +423,37 @@ const HealthMetricsContent: React.FC = () => {
                   <p className="text-tv-subtitle text-foreground">{bmiCategory}</p>
                 </div>
               </div>
-              <div className="h-3 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full bg-primary"
-                  style={{ width: `${Math.min((bmi / 40) * 100, 100)}%` }}
-                />
+              <div className="relative h-4 rounded-full bg-muted overflow-hidden">
+                <div className="flex h-full">
+                  <div className="flex-1 bg-blue-500" />
+                  <div className="flex-1 bg-emerald-500" />
+                  <div className="flex-1 bg-amber-400" />
+                  <div className="flex-1 bg-orange-500" />
+                </div>
+                {bmi > 0 && (
+                  <div
+                    className="absolute top-0 h-full w-0.5 bg-white shadow"
+                    style={{ left: `${Math.min((bmi / 40) * 100, 100)}%` }}
+                  />
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  <span>Underweight &lt; 18.5</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span>Normal 18.5 - 24.9</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-amber-400" />
+                  <span>Overweight 25 - 29.9</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-orange-500" />
+                  <span>Obese 30+</span>
+                </div>
               </div>
               <div>
                 <p className="text-tv-small text-muted-foreground">Ideal Weight Range</p>
