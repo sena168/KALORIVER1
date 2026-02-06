@@ -161,6 +161,11 @@ const HealthMetricsContent: React.FC = () => {
     return (clamped / bmiScaleMax) * 100;
   }, [bmi]);
 
+  const bmiMarker = useMemo(() => {
+    const clamped = Math.min(Math.max(bmiPercent, 2), 98);
+    return clamped;
+  }, [bmiPercent]);
+
   const bmiSegment = useMemo(() => {
     const total = bmiScaleMax;
     return {
@@ -441,27 +446,28 @@ const HealthMetricsContent: React.FC = () => {
                   <p className="text-tv-subtitle text-foreground">{bmiCategory}</p>
                 </div>
               </div>
-              <div className="relative h-4 rounded-full bg-muted overflow-hidden">
-                <div className="flex h-full">
-                  <div className="bg-blue-500" style={{ width: `${bmiSegment.under}%` }} />
-                  <div className="bg-emerald-500" style={{ width: `${bmiSegment.normal}%` }} />
-                  <div className="bg-amber-400" style={{ width: `${bmiSegment.over}%` }} />
-                  <div className="bg-orange-500" style={{ width: `${bmiSegment.obese}%` }} />
-                  <div className="bg-red-600" style={{ width: `${bmiSegment.morbid}%` }} />
-                </div>
+              <div className="relative pt-6">
                 {bmi > 0 && (
-                  <div className="absolute -top-6 left-0" style={{ width: `${bmiPercent}%` }}>
-                    <div className="absolute right-0 translate-x-1/2 flex flex-col items-center">
-                      <span className="text-xs text-foreground font-medium">
-                        {bmi.toFixed(1)}
-                      </span>
-                      <div
-                        className="h-0 w-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"
-                        aria-hidden="true"
-                      />
-                    </div>
+                  <div
+                    className="absolute top-0 flex flex-col items-center"
+                    style={{ left: `${bmiMarker}%`, transform: "translateX(-50%)" }}
+                  >
+                    <span className="text-xs text-foreground font-medium">{bmi.toFixed(1)}</span>
+                    <div
+                      className="h-0 w-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-white"
+                      aria-hidden="true"
+                    />
                   </div>
                 )}
+                <div className="h-4 rounded-full bg-muted overflow-hidden">
+                  <div className="flex h-full">
+                    <div className="bg-blue-500" style={{ width: `${bmiSegment.under}%` }} />
+                    <div className="bg-emerald-500" style={{ width: `${bmiSegment.normal}%` }} />
+                    <div className="bg-amber-400" style={{ width: `${bmiSegment.over}%` }} />
+                    <div className="bg-orange-500" style={{ width: `${bmiSegment.obese}%` }} />
+                    <div className="bg-red-600" style={{ width: `${bmiSegment.morbid}%` }} />
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
