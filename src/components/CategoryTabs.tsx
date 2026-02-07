@@ -6,16 +6,24 @@ interface CategoryTabsProps {
   categories: MenuCategoryWithMeta[];
   activeCategory: string;
   onCategoryChange: (categoryId: string) => void;
+  embedded?: boolean;
 }
 
 const CategoryTabs: React.FC<CategoryTabsProps> = ({
   categories,
   activeCategory,
   onCategoryChange,
+  embedded = false,
 }) => {
   return (
-    <div className="fixed top-16 md:top-20 lg:top-24 left-0 right-0 z-40 bg-background border-b border-border">
-      <div className="container mx-auto px-4">
+    <div
+      className={
+        embedded
+          ? "w-full bg-background border-b border-border"
+          : "fixed top-16 md:top-20 lg:top-24 left-0 right-0 z-40 bg-background border-b border-border"
+      }
+    >
+      <div className={embedded ? "px-4" : "container mx-auto px-4"}>
         <div className="flex gap-2 md:gap-4 py-3 md:py-4">
           {categories.map((category) => (
             <button

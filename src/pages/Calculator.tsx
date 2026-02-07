@@ -6,7 +6,11 @@ import FoodMenu from '@/components/FoodMenu';
 import BottomBar from '@/components/BottomBar';
 import { useMenuData } from '@/hooks/useMenuData';
 
-const Calculator: React.FC = () => {
+interface CalculatorContentProps {
+  embedded?: boolean;
+}
+
+export const CalculatorContent: React.FC<CalculatorContentProps> = ({ embedded = false }) => {
   const { categories: menuData, isLoading } = useMenuData({ includeHidden: false });
   const [activeCategory, setActiveCategory] = useState<string>(menuData[0]?.id || 'makanan-utama');
 
@@ -27,7 +31,7 @@ const Calculator: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`${embedded ? "h-full" : "min-h-screen"} bg-background flex items-center justify-center`}>
         <div className="text-center">
           <img
             src="/santo-yusup.png"
@@ -42,28 +46,37 @@ const Calculator: React.FC = () => {
 
   return (
     <CalorieProvider>
-      <div className="h-screen flex flex-col overflow-hidden bg-background">
+      <div className={`${embedded ? "h-full" : "h-screen"} flex flex-col overflow-hidden bg-background`}>
         {/* Fixed Header */}
-        <Header />
+        {!embedded && <Header />}
         
         {/* Fixed Category Tabs */}
         <CategoryTabs
           categories={menuData}
           activeCategory={activeCategory}
           onCategoryChange={handleCategoryChange}
+          embedded={embedded}
         />
         
         {/* Scrollable Menu Content */}
         {/* Spacing: header (16-24) + tabs (~60-72) + bottom bar (20-28) */}
-        <main className="flex flex-col flex-1 min-h-0 mt-[8.5rem] md:mt-[10rem] lg:mt-[12rem] mb-20 md:mb-24 lg:mb-28">
+        <main
+          className={
+            embedded
+              ? "flex flex-col flex-1 min-h-0 mt-4"
+              : "flex flex-col flex-1 min-h-0 mt-[8.5rem] md:mt-[10rem] lg:mt-[12rem] mb-20 md:mb-24 lg:mb-28"
+          }
+        >
           <FoodMenu items={activeItems} categoryId={activeCategory} />
         </main>
         
         {/* Fixed Bottom Bar */}
-        <BottomBar />
+        <BottomBar embedded={embedded} />
       </div>
     </CalorieProvider>
   );
 };
+
+const Calculator: React.FC = () => <CalculatorContent />;
 
 export default Calculator;

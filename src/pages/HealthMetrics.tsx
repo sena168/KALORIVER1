@@ -32,7 +32,11 @@ const metActivities = [
 
 const numberOrZero = (value: unknown) => (Number.isFinite(Number(value)) ? Number(value) : 0);
 
-const HealthMetricsContent: React.FC = () => {
+interface HealthMetricsContentProps {
+  embedded?: boolean;
+}
+
+const HealthMetricsContent: React.FC<HealthMetricsContentProps> = ({ embedded = false }) => {
   const { user, loading, signInWithGoogle } = useAuth();
   const { profile, isLoading: profileLoading, error: profileError, saveProfile } = useProfile(Boolean(user));
   const { age, weight, height, gender, setAge, setWeight, setHeight, setGender } = useHealthMetrics();
@@ -281,9 +285,11 @@ const HealthMetricsContent: React.FC = () => {
     }));
   }, [age]);
 
+  const pageHeightClass = embedded ? "h-full" : "min-h-screen";
+
   if (loading && !forceReady) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`${pageHeightClass} bg-background flex items-center justify-center`}>
         <div className="text-center">
           <img
             src="/santo-yusup.png"
@@ -297,8 +303,9 @@ const HealthMetricsContent: React.FC = () => {
   }
 
   if (!user) {
+    const redirectPath = embedded ? "/kalkulator-bmi" : "/health-metrics";
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className={`${pageHeightClass} bg-background flex items-center justify-center p-6`}>
         <div className="bg-card border border-border rounded-2xl p-8 max-w-md w-full text-center">
           <h2 className="text-tv-subtitle text-foreground mb-2">BMI Index membutuhkan login</h2>
           <p className="text-tv-body text-muted-foreground mb-6">
@@ -309,7 +316,7 @@ const HealthMetricsContent: React.FC = () => {
             onClick={async () => {
               const { error } = await signInWithGoogle();
               if (!error) {
-                window.location.assign("/health-metrics");
+                window.location.assign(redirectPath);
               } else {
                 window.alert("Gagal masuk dengan Google. Coba lagi.");
               }
@@ -324,11 +331,11 @@ const HealthMetricsContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className={`${pageHeightClass} bg-background`}>
+      {!embedded && <Header />}
 
-      <main className="pt-24 md:pt-28 lg:pt-32 pb-10">
-        <div className="container mx-auto px-4 space-y-6">
+      <main className={embedded ? "h-full overflow-y-auto py-6" : "pt-24 md:pt-28 lg:pt-32 pb-10"}>
+        <div className={`${embedded ? "px-4" : "container mx-auto px-4"} space-y-6`}>
           <div className="bg-card border border-border rounded-2xl p-6 shadow-lg">
             {profileLoading && (
               <div className="space-y-4">
@@ -756,6 +763,12 @@ const HealthMetricsContent: React.FC = () => {
 const HealthMetrics: React.FC = () => (
   <HealthMetricsProvider>
     <HealthMetricsContent />
+  </HealthMetricsProvider>
+);
+
+export const HealthMetricsEmbedded: React.FC = () => (
+  <HealthMetricsProvider>
+    <HealthMetricsContent embedded />
   </HealthMetricsProvider>
 );
 

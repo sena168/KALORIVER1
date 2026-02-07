@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/useProfile';
 const Header: React.FC = () => {
   const { user, signOut, signInWithGoogle } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const { profile, isAdmin } = useProfile(Boolean(user));
   const [isGuest, setIsGuest] = useState(false);
 
@@ -22,9 +23,11 @@ const Header: React.FC = () => {
   const isAdminPage = location.pathname === "/admin";
   const isCalculatorPage = location.pathname === "/";
   const isHealthMetricsPage = location.pathname === "/health-metrics";
+  const isSplitViewPage = location.pathname === "/kalkulator-bmi";
   const showAdminButton = Boolean(user) && isAdmin && !isAdminPage;
   const showCalculatorButton = Boolean(user) && !isCalculatorPage;
   const showBmiButton = isCalculatorPage || isAdminPage;
+  const showSplitOption = Boolean(user) || isGuest;
 
   const handleSignOut = async () => {
     const confirmed = window.confirm("Keluar dari akun?");
@@ -50,6 +53,22 @@ const Header: React.FC = () => {
     const { error } = await signInWithGoogle();
     if (!error) {
       window.location.assign("/health-metrics");
+      return;
+    }
+    window.alert("Gagal masuk dengan Google. Coba lagi.");
+  };
+
+  const handleSplitViewClick = async () => {
+    if (user) {
+      navigate(isSplitViewPage ? "/" : "/kalkulator-bmi");
+      return;
+    }
+    if (!isGuest) return;
+    const confirmed = window.confirm("BMI Index memerlukan login. Lanjutkan login?");
+    if (!confirmed) return;
+    const { error } = await signInWithGoogle();
+    if (!error) {
+      navigate("/kalkulator-bmi");
       return;
     }
     window.alert("Gagal masuk dengan Google. Coba lagi.");
@@ -141,6 +160,17 @@ const Header: React.FC = () => {
               <div className="px-3 py-2 text-sm text-foreground">
                 {displayLabel || "User"}
               </div>
+              {showSplitOption && (
+                <DropdownMenu.Item
+                  className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleSplitViewClick();
+                  }}
+                >
+                  {isSplitViewPage ? "Tampilan Normal" : "Tampilan Split"}
+                </DropdownMenu.Item>
+              )}
               <div className="px-3 py-2 text-xs text-muted-foreground">Theme</div>
               <DropdownMenu.Item
                 className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
