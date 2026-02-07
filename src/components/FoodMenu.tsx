@@ -88,12 +88,12 @@ const FoodMenu: React.FC<FoodMenuProps> = ({ items, categoryId, embedded = false
           <div
             className={
               embedded
-                ? "grid grid-cols-1 gap-4 md:gap-5 lg:gap-6 pb-4"
+                ? "grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 md:gap-5 lg:gap-6 pb-4"
                 : "grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 md:gap-5 lg:gap-6 pb-4"
             }
           >
             {items.map((item) => (
-              <FoodCard key={item.id} item={item} />
+              <FoodCard key={item.id} item={item} embedded={embedded} />
             ))}
           </div>
         </div>

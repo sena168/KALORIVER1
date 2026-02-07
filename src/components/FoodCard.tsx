@@ -7,9 +7,10 @@ import { getNextImageFallback } from '@/lib/imageFallback';
 
 interface FoodCardProps {
   item: MenuItemWithMeta;
+  embedded?: boolean;
 }
 
-const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
+const FoodCard: React.FC<FoodCardProps> = ({ item, embedded = false }) => {
   const { getQuantity, incrementQuantity, decrementQuantity } = useCalories();
   const [imageError, setImageError] = useState(false);
   
@@ -105,6 +106,7 @@ const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
           quantity={quantity}
           onIncrement={() => incrementQuantity(item.id)}
           onDecrement={() => decrementQuantity(item.id)}
+          stacked={embedded}
         />
       </div>
     </div>

@@ -8,6 +8,7 @@ interface QuantityControlProps {
   onIncrement: () => void;
   onDecrement: () => void;
   className?: string;
+  stacked?: boolean;
 }
 
 const QuantityControl: React.FC<QuantityControlProps> = ({
@@ -15,11 +16,14 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
   onIncrement,
   onDecrement,
   className,
+  stacked = false,
 }) => {
   return (
     <div
       className={cn(
-        "flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-shrink-0 text-[0.85rem] sm:text-[0.9rem] md:text-[0.8rem] lg:text-[0.9rem] xl:text-[1rem]",
+        stacked
+          ? "flex flex-col items-center gap-1.5 flex-shrink-0 text-[0.85rem] sm:text-[0.9rem] md:text-[0.8rem] lg:text-[0.9rem] xl:text-[1rem]"
+          : "flex items-center gap-1 sm:gap-1.5 md:gap-2 flex-shrink-0 text-[0.85rem] sm:text-[0.9rem] md:text-[0.8rem] lg:text-[0.9rem] xl:text-[1rem]",
         className
       )}
     >
@@ -28,7 +32,10 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
         size="icon"
         onClick={onDecrement}
         disabled={quantity <= 0}
-        className="rounded-full h-[2.4em] w-[2.4em] md:h-[2.2em] md:w-[2.2em] lg:h-[2.5em] lg:w-[2.5em] xl:h-[2.8em] xl:w-[2.8em]"
+        className={cn(
+          "rounded-full h-[2.4em] w-[2.4em] md:h-[2.2em] md:w-[2.2em] lg:h-[2.5em] lg:w-[2.5em] xl:h-[2.8em] xl:w-[2.8em]",
+          stacked && "h-[2.2em] w-[2.2em]"
+        )}
       >
         <Minus className="h-[1em] w-[1em]" />
       </Button>
@@ -41,7 +48,10 @@ const QuantityControl: React.FC<QuantityControlProps> = ({
         variant="default"
         size="icon"
         onClick={onIncrement}
-        className="rounded-full h-[2.4em] w-[2.4em] md:h-[2.2em] md:w-[2.2em] lg:h-[2.5em] lg:w-[2.5em] xl:h-[2.8em] xl:w-[2.8em]"
+        className={cn(
+          "rounded-full h-[2.4em] w-[2.4em] md:h-[2.2em] md:w-[2.2em] lg:h-[2.5em] lg:w-[2.5em] xl:h-[2.8em] xl:w-[2.8em]",
+          stacked && "h-[2.2em] w-[2.2em]"
+        )}
       >
         <Plus className="h-[1em] w-[1em]" />
       </Button>
