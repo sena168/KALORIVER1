@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 interface FoodMenuProps {
   items: MenuItemWithMeta[];
   categoryId: string;
+  embedded?: boolean;
 }
 
-const FoodMenu: React.FC<FoodMenuProps> = ({ items, categoryId }) => {
+const FoodMenu: React.FC<FoodMenuProps> = ({ items, categoryId, embedded = false }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showTopButton, setShowTopButton] = useState(false);
   const [showBottomButton, setShowBottomButton] = useState(false);
@@ -83,8 +84,14 @@ const FoodMenu: React.FC<FoodMenuProps> = ({ items, categoryId }) => {
         ref={scrollContainerRef}
         className="h-full overflow-y-auto scrollbar-thin px-4 py-4 pb-32"
       >
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 md:gap-5 lg:gap-6 pb-4">
+        <div className={embedded ? "w-full" : "container mx-auto"}>
+          <div
+            className={
+              embedded
+                ? "grid grid-cols-1 gap-4 md:gap-5 lg:gap-6 pb-4"
+                : "grid grid-cols-1 min-[900px]:grid-cols-2 gap-4 md:gap-5 lg:gap-6 pb-4"
+            }
+          >
             {items.map((item) => (
               <FoodCard key={item.id} item={item} />
             ))}

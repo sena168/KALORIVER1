@@ -67,7 +67,7 @@ export const CalculatorContent: React.FC<CalculatorContentProps> = ({ embedded =
               : "flex flex-col flex-1 min-h-0 mt-[8.5rem] md:mt-[10rem] lg:mt-[12rem] mb-20 md:mb-24 lg:mb-28"
           }
         >
-          <FoodMenu items={activeItems} categoryId={activeCategory} />
+          <FoodMenu items={activeItems} categoryId={activeCategory} embedded={embedded} />
         </main>
         
         {/* Fixed Bottom Bar */}

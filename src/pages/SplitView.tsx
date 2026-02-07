@@ -7,9 +7,9 @@ const SplitView: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-24 md:pt-28 lg:pt-32 pb-6">
-        <div className="container mx-auto px-4">
-          <div className="hidden xl:grid xl:grid-cols-2 gap-6 h-[calc(100vh-10rem)]">
+      <main className="pt-24 md:pt-28 lg:pt-32 pb-6 px-2">
+        <div className="w-full max-w-none">
+          <div className="hidden xl:grid xl:grid-cols-2 gap-4 h-[calc(100vh-10rem)]">
             <div className="bg-card border border-border rounded-2xl shadow-md overflow-hidden flex flex-col">
               <CalculatorContent embedded />
             </div>
