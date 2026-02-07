@@ -474,7 +474,9 @@ const HealthMetricsContent: React.FC<HealthMetricsContentProps> = ({ embedded = 
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key as TabKey)}
-                  className={`flex-1 py-3 md:py-4 px-4 md:px-6 rounded-lg text-tv-body font-medium transition-all duration-200 touch-target focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                  className={`flex-1 py-3 md:py-4 px-4 md:px-6 rounded-lg font-medium transition-all duration-200 touch-target focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
+                    embedded ? "text-[0.9rem] min-[1400px]:text-tv-body" : "text-tv-body"
+                  } ${
                     activeTab === tab.key
                       ? "bg-primary text-primary-foreground shadow-lg"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
