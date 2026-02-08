@@ -151,11 +151,14 @@ const Header: React.FC = () => {
 
   const avatarSrc = profile?.photoUrl || "/kaloriico.png";
   const displayLabel =
-    profile?.username ||
-    user?.displayName ||
-    user?.email?.split("@")[0] ||
-    "";
+    (isGuest && !user)
+      ? "Guest"
+      : profile?.username ||
+        user?.displayName ||
+        user?.email?.split("@")[0] ||
+        "";
   const initials = (() => {
+    if (isGuest && !user) return "Guest";
     const trimmed = displayLabel.trim();
     if (!trimmed) return "U";
     const parts = trimmed.split(/\s+/).filter(Boolean);
@@ -164,6 +167,8 @@ const Header: React.FC = () => {
     }
     return trimmed.slice(0, 2).toUpperCase();
   })();
+
+  const canToggleProfileSetup = Boolean(user) && Boolean(profile);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
@@ -267,9 +272,14 @@ const Header: React.FC = () => {
                 </DropdownMenu.Item>
               )}
               <DropdownMenu.Item
-                className="cursor-pointer select-none rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
+                className={`select-none rounded-md px-3 py-2 text-sm ${
+                  canToggleProfileSetup
+                    ? "cursor-pointer text-foreground hover:bg-muted"
+                    : "cursor-not-allowed text-muted-foreground bg-muted/30"
+                }`}
                 onSelect={(event) => {
                   event.preventDefault();
+                  if (!canToggleProfileSetup) return;
                   handleProfileSetupToggle();
                 }}
               >
@@ -279,8 +289,8 @@ const Header: React.FC = () => {
                     role="switch"
                     aria-checked={profileSetupVisible}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      profileSetupVisible ? "bg-primary" : "bg-muted"
-                    }`}
+                      profileSetupVisible && canToggleProfileSetup ? "bg-primary" : "bg-muted"
+                    } ${canToggleProfileSetup ? "" : "opacity-60"}`}
                   >
                     <span
                       className={`inline-block h-5 w-5 transform rounded-full bg-background transition-transform ${
